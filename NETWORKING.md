@@ -53,7 +53,12 @@ Todo cambio de estado compartido:
 `Match` (host) pasa `LOBBY → FLIGHT → RESULTS → LOBBY`. Los sistemas son nodos hijos de `Match` (no autoloads) y exponen `reset()`; reiniciar es limpiar y volver a instanciar. Todo sistema nuevo nace sabiendo reiniciarse.
 
 ## Autoloads
-Solo dos: `Network` (conexión, lista de peers, señales de conexión/desconexión) y `DebugTools` (atajos F1–F8, solo en builds de debug).
+Solo dos: `Network` (conexión, roster, señales de conexión/desconexión; **implementado**) y `DebugTools` (atajos F1–F8, solo en builds de debug; **aún no existe**).
+
+## Estado de implementación
+- **Hecho (Fase 2):** conexión Host/Join, roster, spawner de jugadores, personaje con autoridad del dueño + interpolación (lerp simple hacia la última posición), desconexión de cliente y de host.
+- **Pendiente (Fase 3):** todo lo de la tabla de autoridad sobre objetos. `Grabbable` e `Interactable` hoy funcionan solo en local (sin RPC ni sincronización); se rehacen con el patrón petición → validación → broadcast.
+- **Sin verificar:** partida llena (5º jugador), jitter por Tailscale. Si la interpolación se nota a tirones en red real, pasar a un buffer con timestamp.
 
 ## Registro de jugadores (roster)
 `Network.players` (`peer id → {name, slot}`) lo mantiene el host. Un cliente, al conectar, llama `_request_register.rpc_id(1, nombre)`; el host sanea el nombre, asigna el primer slot libre (0–3: color y punto de aparición) y replica el roster con `_sync_roster.rpc`. `Match` (solo en el host) spawnea/borra el `Player` de cada peer con un `MultiplayerSpawner` y `spawn_function`; el nodo se llama como el peer id y de ahí sale su autoridad.
