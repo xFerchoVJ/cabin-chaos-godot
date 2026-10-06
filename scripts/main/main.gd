@@ -59,6 +59,8 @@ func _on_connected() -> void:
 
 func _on_disconnected(reason: String) -> void:
 	if _match != null:
+		# Deja de procesar ya: en este mismo frame la conexión está cerrada y los nodos de Match la consultan.
+		_match.process_mode = Node.PROCESS_MODE_DISABLED
 		_match.queue_free()
 		_match = null
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE

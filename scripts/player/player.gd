@@ -144,11 +144,19 @@ func sit_down(seat: Seat) -> void:
 
 ## Lo llama `Seat` en el peer dueño cuando el host libera el asiento: reaparece junto a él con control.
 func stand_up(seat: Seat) -> void:
+	if _seat != seat:
+		return # Ya lo movieron (p. ej. un teletransporte del host antes de liberar el asiento).
 	_state = State.NORMAL
 	_seat = null
 	velocity = Vector3.ZERO
 	_collision.set_deferred("disabled", false)
 	global_position = seat.get_exit_position()
+
+
+## Solo host (lo llama Match): coloca al personaje de su dueño en `point`. No mueve cuerpos ajenos:
+## pide por RPC al dueño, que es quien tiene la autoridad.
+func request_teleport(point: Vector3) -> void:
+	_teleport.rpc_id(get_multiplayer_authority(), point)
 
 
 func _physics_remote(delta: float) -> void:
@@ -214,6 +222,21 @@ func _apply_vertical(delta: float) -> void:
 		_coyote_timer = 0.0
 	elif Input.is_action_just_released("jump") and velocity.y > 0.0:
 		velocity.y *= jump_cut_multiplier
+
+
+@rpc("any_peer", "call_local", "reliable")
+func _teleport(point: Vector3) -> void:
+	if Network.get_sender_id() != Interactable.HOST_ID or not is_multiplayer_authority():
+		return
+	if _held != null:
+		_held.release_local()
+		_held = null
+	_state = State.NORMAL
+	_seat = null
+	velocity = Vector3.ZERO
+	_collision.set_deferred("disabled", false)
+	global_position = point
+	sync_position = point
 
 
 func _turn_model(target_yaw: float, delta: float) -> void:

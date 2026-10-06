@@ -11,9 +11,15 @@ var is_open: bool = false:
 
 
 func _ready() -> void:
+	add_to_group("match_resettable")
 	_interactable.interacted.connect(_on_interacted)
 	_hinge.set_open(is_open, false)
 	_refresh()
+
+
+## Solo host (lo llama Match): cerrado.
+func reset() -> void:
+	is_open = false
 
 
 func _set_is_open(value: bool) -> void:

@@ -25,7 +25,7 @@ Autoload `Network`, Host/Join por IP, spawner, synchronizer con interpolación, 
 ### Fase 3 — Interacciones sincronizadas ✅
 Agarrar/lanzar en red (el portador es autoridad del objeto mientras lo sostiene), carrito, asientos, puerta del baño con seguro, compartimento y maleta.
 
-### Fase 4 — Greybox del avión + esqueleto del loop ⬜
+### Fase 4 — Greybox del avión + esqueleto del loop ✅ (esperando aceptación)
 Avión completo con primitivas; `Match` con `LOBBY → FLIGHT → RESULTS`, roles, revancha limpia.
 
 ### Fase 5 — Roles y sistemas principales ⬜
@@ -44,7 +44,7 @@ Fases del vuelo, tormentas, 1–2 incidentes, resultados con momentos. **Playtes
 Squash & stretch, partículas, sonidos mínimos, balance, bugs.
 
 ## Pendientes conocidos
-- `scenes/match/match.tscn` tiene un `Level` provisional (geometría del sandbox más cajas, carrito, maleta, asientos, baño con puerta y compartimento colocados a mano); lo reemplaza `plane.tscn` en la **Fase 4**. Entonces `scenes/test/sandbox.tscn` puede borrarse o dejarse solo como banco de pruebas.
+- `scenes/test/sandbox.tscn` ya no lo usa el juego (el avión reemplazó al `Level` provisional); queda como banco de pruebas o se borra.
 - Cada traspaso de autoridad de un objeto (agarrar/soltar) imprime 2–3 avisos benignos `Ignoring sync data from non-authority`: un paquete del dueño anterior llega antes de que el receptor conozca al nuevo y Godot lo descarta.
 - La línea de visión al elegir objetivo es solo de interfaz: el host no la valida (aceptado, no es a prueba de trampas).
 - Posible empujón: al abrir la tapa del compartimento a menos de ~0.6 m del frente, la tapa puede empujar al jugador durante el giro (0.3 s). Si molesta, hacer que la tapa no colisione con jugadores.
@@ -53,7 +53,7 @@ Squash & stretch, partículas, sonidos mínimos, balance, bugs.
 - `DebugTools` (autoload, atajos F1–F8) aún no existe; se crea cuando una fase lo necesite.
 - Interpolación de remotos: lerp simple. Evaluar buffer con timestamp si hay jitter en Tailscale.
 - Sin verificar: partida llena (5º jugador) y juego por Tailscale.
-- Un jugador que se une con la partida ya en marcha aparece en su slot directamente; el flujo `LOBBY → FLIGHT → RESULTS` y el bloqueo de unión en vuelo llegan en la **Fase 4**.
+- Solo se puede entrar en el lobby: durante `FLIGHT`/`RESULTS` el host rechaza el registro ("La partida ya empezó"). Una desconexión a mitad de partida no se puede revertir con reconexión.
 
 ## Estructura de carpetas
 
