@@ -30,7 +30,7 @@ Separación por **tipo de archivo** en el primer nivel y por **dominio** en el s
 
 ```
 res://
-├─ CLAUDE.md, GAME_DESIGN.md, NETWORKING.md, DEVELOPMENT_PLAN.md, project.godot, icon.svg   (únicos archivos en la raíz)
+├─ README.md, CLAUDE.md, GAME_DESIGN.md, NETWORKING.md, DEVELOPMENT_PLAN.md, project.godot, icon.svg   (únicos archivos en la raíz)
 ├─ scenes/              SOLO .tscn
 │  ├─ main/             main.tscn, connect_menu.tscn
 │  ├─ player/           player.tscn, player_camera.tscn
