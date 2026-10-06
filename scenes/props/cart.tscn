@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/components/grabbable.gd" id="1_grab"]
+[ext_resource type="Script" path="res://scripts/components/networked_body.gd" id="2_net"]
+[ext_resource type="Material" path="res://resources/materials/mat_cart_steel.tres" id="3_steel"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cart"]
+size = Vector3(0.8, 0.9, 1.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_cart"]
+material = ExtResource("3_steel")
+size = Vector3(0.8, 0.9, 1.6)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_transform"]
+properties/0/path = NodePath(".:sync_position")
+properties/0/spawn = false
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:sync_rotation")
+properties/1/spawn = false
+properties/1/replication_mode = 1
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_holder"]
+properties/0/path = NodePath(".:holder_id")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[node name="Cart" type="RigidBody3D"]
+collision_layer = 4
+collision_mask = 7
+mass = 15.0
+linear_damp = 2.0
+angular_damp = 2.0
+axis_lock_angular_x = true
+axis_lock_angular_z = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_cart")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_cart")
+
+[node name="NetworkedBody" type="Node" parent="."]
+script = ExtResource("2_net")
+
+[node name="TransformSync" type="MultiplayerSynchronizer" parent="NetworkedBody"]
+unique_name_in_owner = true
+replication_config = SubResource("SceneReplicationConfig_transform")
+
+[node name="Grabbable" type="Node" parent="."]
+script = ExtResource("1_grab")
+prompt_text = "Empujar carrito"
+carry_speed_multiplier = 0.6
+throwable = false
+hold_offset = Vector3(0, -0.55, -0.3)
+align_to_holder = true
+
+[node name="HolderSync" type="MultiplayerSynchronizer" parent="Grabbable"]
+replication_config = SubResource("SceneReplicationConfig_holder")

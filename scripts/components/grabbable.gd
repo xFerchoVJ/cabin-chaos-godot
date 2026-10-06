@@ -31,6 +31,10 @@ const HOST_ID: int = 1
 @export var throwable: bool = true
 ## Desplaza el punto de agarre respecto a la mano del personaje (en el espacio local de la mano).
 @export var hold_offset: Vector3 = Vector3.ZERO
+## Si es true, el objeto gira para mirar hacia donde mira el portador (el carrito sigue tu dirección).
+@export var align_to_holder: bool = false
+## Qué tan rápido corrige el giro cuando `align_to_holder` está activo.
+@export var align_speed: float = 8.0
 
 ## Peer que lo sostiene (0 = libre). Lo fija el host; se replica a los demás.
 var holder_id: int = 0:
@@ -60,7 +64,11 @@ func _physics_process(delta: float) -> void:
 		release_local()
 		return
 	_body.linear_velocity = (to_target * follow_stiffness).limit_length(max_follow_speed)
-	_body.angular_velocity *= clampf(1.0 - spin_damping * delta, 0.0, 1.0)
+	if align_to_holder:
+		var yaw_error: float = wrapf(_holder.get_hold_point().global_rotation.y - _body.global_rotation.y, -PI, PI)
+		_body.angular_velocity = Vector3(0.0, yaw_error * align_speed, 0.0)
+	else:
+		_body.angular_velocity *= clampf(1.0 - spin_damping * delta, 0.0, 1.0)
 
 
 ## Devuelve el componente Grabbable hijo de `body`, o null si no tiene.

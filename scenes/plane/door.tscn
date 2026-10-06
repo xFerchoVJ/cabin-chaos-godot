@@ -1,0 +1,84 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/plane/door.gd" id="1_door"]
+[ext_resource type="Script" path="res://scripts/components/interactable.gd" id="2_inter"]
+[ext_resource type="Script" path="res://scripts/components/hinge_swing.gd" id="3_hinge"]
+[ext_resource type="Material" path="res://resources/materials/mat_door_white.tres" id="4_white"]
+[ext_resource type="Material" path="res://resources/materials/mat_lock_locked.tres" id="5_locked"]
+[ext_resource type="Material" path="res://resources/materials/mat_lock_unlocked.tres" id="6_unlocked"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_panel"]
+size = Vector3(1, 2.6, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_panel"]
+material = ExtResource("4_white")
+size = Vector3(1, 2.6, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_indicator"]
+size = Vector3(0.14, 0.14, 0.02)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_button"]
+size = Vector3(0.14, 0.14, 0.06)
+
+[sub_resource type="BoxMesh" id="BoxMesh_button"]
+size = Vector3(0.14, 0.14, 0.06)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_door"]
+properties/0/path = NodePath(".:is_open")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:locked_by")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+
+[node name="Door" type="Node3D"]
+script = ExtResource("1_door")
+material_locked = ExtResource("5_locked")
+material_unlocked = ExtResource("6_unlocked")
+
+[node name="Panel" type="AnimatableBody3D" parent="."]
+unique_name_in_owner = true
+collision_layer = 9
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Panel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.3, 0)
+shape = SubResource("BoxShape3D_panel")
+
+[node name="Mesh" type="MeshInstance3D" parent="Panel"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1.3, 0)
+mesh = SubResource("BoxMesh_panel")
+
+[node name="Indicator" type="MeshInstance3D" parent="Panel"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 1.6, 0.05)
+mesh = SubResource("BoxMesh_indicator")
+
+[node name="DoorInteractable" type="Node" parent="Panel"]
+unique_name_in_owner = true
+script = ExtResource("2_inter")
+
+[node name="LockButton" type="StaticBody3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.25, 1.1, -0.13)
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="LockButton"]
+shape = SubResource("BoxShape3D_button")
+
+[node name="LockMesh" type="MeshInstance3D" parent="LockButton"]
+unique_name_in_owner = true
+mesh = SubResource("BoxMesh_button")
+
+[node name="LockInteractable" type="Node" parent="LockButton"]
+unique_name_in_owner = true
+script = ExtResource("2_inter")
+
+[node name="HingeSwing" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_hinge")
+panel_path = NodePath("../Panel")
+
+[node name="StateSync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_door")
