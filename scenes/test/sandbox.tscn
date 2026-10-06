@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/props/grabbable_box.tscn" id="2_box"]
-[ext_resource type="PackedScene" path="res://scenes/test/test_switch.tscn" id="3_switch"]
 [ext_resource type="Material" path="res://resources/materials/mat_floor_gray.tres" id="4_floor"]
 [ext_resource type="Material" path="res://resources/materials/mat_wall_light.tres" id="5_wall"]
 
@@ -112,9 +111,6 @@ shape = SubResource("BoxShape3D_step")
 
 [node name="Mesh" type="MeshInstance3D" parent="Step"]
 mesh = SubResource("BoxMesh_step")
-
-[node name="TestSwitch" parent="." instance=ExtResource("3_switch")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -2)
 
 [node name="Box1" parent="." instance=ExtResource("2_box")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.4, -4)

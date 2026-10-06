@@ -43,7 +43,7 @@ res://
 │  ├─ autoload/         network.gd, debug_tools.gd  (únicos scripts sin escena)
 │  ├─ main/  player/  plane/  props/  match/  ui/      (espejo de scenes/)
 │  ├─ systems/          satisfaction.gd, turbulence.gd, missions.gd, incidents.gd (nodos hijos de Match)
-│  ├─ components/       piezas reutilizables adjuntables a cualquier nodo (interactable.gd, grabbable.gd, seat_slot.gd...)
+│  ├─ components/       piezas reutilizables adjuntables a cualquier nodo (interactable.gd, grabbable.gd, networked_body.gd, hinge_swing.gd...)
 │  └─ resources/        definiciones de Resource: game_balance.gd, mission_definition.gd
 └─ resources/           SOLO instancias .tres/.res: game_balance.tres, missions/*.tres, materials/*.tres
 ```
@@ -89,7 +89,7 @@ Reglas:
 - Argumentos de arranque (tras `--`): `--host`, `--join=IP`, `--name=Nombre` (saltan el menú; útiles en Customize Run Instances).
 
 ## Estado actual
-Fases 0–2 aceptadas y en `main`. Existe: autoload `Network` (host/join, roster, registro por RPC), Main (menú ↔ partida), `Match` mínimo con `MultiplayerSpawner`, `Player` con autoridad del dueño e interpolación en remotos, menú de pausa. `Grabbable` e `Interactable` siguen siendo **solo locales** (sin red) hasta la Fase 3. Siguiente: Fase 3 — interacciones sincronizadas. Pendientes conocidos y detalle en `DEVELOPMENT_PLAN.md`.
+Fases 0–3 aceptadas y en `main`. Existe: autoload `Network` (host/join, roster, registro por RPC, `get_sender_id()`), Main (menú ↔ partida), `Match` con `MultiplayerSynchronizer`/`MultiplayerSpawner`, `Player` (autoridad del dueño, interpolación en remotos, estado sentado, línea de visión al elegir objetivo) y menú de pausa. Interacciones **en red** con el patrón petición → validación → broadcast: componentes `Grabbable` (el portador es autoridad del objeto mientras lo sostiene), `NetworkedBody`, `Interactable` y `HingeSwing`; objetos del `Level` provisional de `Match`: cajas, carrito, maleta, asientos, baño con puerta y seguro, compartimento. Siguiente: Fase 4 — greybox del avión + esqueleto del loop. Pendientes conocidos y detalle en `DEVELOPMENT_PLAN.md`.
 
 ## Cierre de fase (checklist obligatorio)
 Antes del commit de cierre, y **después** de que el usuario acepte, revisar que ningún doc quede desfasado:

@@ -1,0 +1,116 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/plane/overhead_bin.gd" id="1_bin"]
+[ext_resource type="Script" path="res://scripts/components/interactable.gd" id="2_inter"]
+[ext_resource type="Script" path="res://scripts/components/hinge_swing.gd" id="3_hinge"]
+[ext_resource type="Material" path="res://resources/materials/mat_bin_gray.tres" id="4_gray"]
+[ext_resource type="Material" path="res://resources/materials/mat_door_white.tres" id="5_white"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_slab"]
+size = Vector3(1.6, 0.1, 0.7)
+
+[sub_resource type="BoxMesh" id="BoxMesh_slab"]
+material = ExtResource("4_gray")
+size = Vector3(1.6, 0.1, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_back"]
+size = Vector3(1.6, 0.8, 0.1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_back"]
+material = ExtResource("4_gray")
+size = Vector3(1.6, 0.8, 0.1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_side"]
+size = Vector3(0.1, 0.8, 0.7)
+
+[sub_resource type="BoxMesh" id="BoxMesh_side"]
+material = ExtResource("4_gray")
+size = Vector3(0.1, 0.8, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lid"]
+size = Vector3(1.6, 0.7, 0.06)
+
+[sub_resource type="BoxMesh" id="BoxMesh_lid"]
+material = ExtResource("5_white")
+size = Vector3(1.6, 0.7, 0.06)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_bin"]
+properties/0/path = NodePath(".:is_open")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
+[node name="OverheadBin" type="Node3D"]
+script = ExtResource("1_bin")
+
+[node name="Shell" type="StaticBody3D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="FloorShape" type="CollisionShape3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+shape = SubResource("BoxShape3D_slab")
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+mesh = SubResource("BoxMesh_slab")
+
+[node name="TopShape" type="CollisionShape3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.05, 0)
+shape = SubResource("BoxShape3D_slab")
+
+[node name="TopMesh" type="MeshInstance3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.05, 0)
+mesh = SubResource("BoxMesh_slab")
+
+[node name="BackShape" type="CollisionShape3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, -0.3)
+shape = SubResource("BoxShape3D_back")
+
+[node name="BackMesh" type="MeshInstance3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, -0.3)
+mesh = SubResource("BoxMesh_back")
+
+[node name="LeftShape" type="CollisionShape3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.65, 0)
+shape = SubResource("BoxShape3D_side")
+
+[node name="LeftMesh" type="MeshInstance3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75, 1.65, 0)
+mesh = SubResource("BoxMesh_side")
+
+[node name="RightShape" type="CollisionShape3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 1.65, 0)
+shape = SubResource("BoxShape3D_side")
+
+[node name="RightMesh" type="MeshInstance3D" parent="Shell"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.75, 1.65, 0)
+mesh = SubResource("BoxMesh_side")
+
+[node name="Lid" type="AnimatableBody3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0.35)
+collision_layer = 9
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Lid"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
+shape = SubResource("BoxShape3D_lid")
+
+[node name="Mesh" type="MeshInstance3D" parent="Lid"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.35, 0)
+mesh = SubResource("BoxMesh_lid")
+
+[node name="LidInteractable" type="Node" parent="Lid"]
+unique_name_in_owner = true
+script = ExtResource("2_inter")
+
+[node name="HingeSwing" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_hinge")
+panel_path = NodePath("../Lid")
+axis = Vector3(1, 0, 0)
+open_angle = -110.0
+swing_time = 0.3
+
+[node name="StateSync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_bin")

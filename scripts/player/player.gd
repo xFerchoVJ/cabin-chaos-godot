@@ -1,6 +1,9 @@
+class_name Player
 extends CharacterBody3D
 ## Personaje controlado por su dueño (autoridad multijugador). Movimiento relativo a la cámara,
 ## salto con coyote time y jump buffer, interacción con [E] y agarrar/soltar/lanzar con el ratón.
+
+enum State { NORMAL, SEATED }
 
 @export_group("Movimiento")
 @export var max_speed: float = 6.0
@@ -40,6 +43,8 @@ extends CharacterBody3D
 var sync_position: Vector3 = Vector3.ZERO
 var sync_yaw: float = 0.0
 
+var _state: State = State.NORMAL
+var _seat: Seat = null
 var _held: Grabbable = null
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
@@ -48,6 +53,7 @@ var _target_grabbable: Grabbable = null
 var _target_interactable: Interactable = null
 
 @onready var _camera: PlayerCamera = %PlayerCamera
+@onready var _collision: CollisionShape3D = %CollisionShape3D
 @onready var _model: Node3D = %Model
 @onready var _hold_point: Marker3D = %HoldPoint
 @onready var _interaction_area: Area3D = %InteractionArea
@@ -63,6 +69,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group("players")
 	sync_position = global_position
 	sync_yaw = _model.rotation.y
 	# El color y el nombre salen del roster, que en un cliente puede llegar después de nacer.
@@ -80,6 +87,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	_refresh_held()
 	_update_target()
 	_update_prompt()
 
@@ -87,15 +95,20 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		return
+	if _state == State.SEATED:
+		if event.is_action_pressed("interact") or event.is_action_pressed("jump"):
+			_seat.request_stand()
+		return
 	if event.is_action_pressed("grab"):
 		if _held != null:
-			_held.release()
+			_held.release_local()
+			_held = null
 		elif _target_grabbable != null:
 			_grab(_target_grabbable)
 	elif event.is_action_pressed("throw") and _held != null:
 		_throw()
 	elif event.is_action_pressed("interact") and _target_interactable != null:
-		_target_interactable.interact(self)
+		_target_interactable.interact()
 
 
 func _physics_process(delta: float) -> void:
@@ -105,6 +118,37 @@ func _physics_process(delta: float) -> void:
 		sync_yaw = _model.rotation.y
 	else:
 		_physics_remote(delta)
+
+
+## Devuelve el personaje cuyo dueño es `peer_id`, o null. El host lo usa para validar a quién le llega un RPC.
+static func find_by_peer(tree: SceneTree, peer_id: int) -> Player:
+	for node: Node in tree.get_nodes_in_group("players"):
+		if node.get_multiplayer_authority() == peer_id:
+			return node as Player
+	return null
+
+
+func get_hold_point() -> Marker3D:
+	return _hold_point
+
+
+## Lo llama `Seat` en el peer dueño cuando el host le asigna el asiento: se coloca en él y deja de moverse.
+func sit_down(seat: Seat) -> void:
+	_state = State.SEATED
+	_seat = seat
+	velocity = Vector3.ZERO
+	_collision.set_deferred("disabled", true)
+	global_position = seat.get_sit_point().global_position
+	_model.rotation.y = seat.global_rotation.y
+
+
+## Lo llama `Seat` en el peer dueño cuando el host libera el asiento: reaparece junto a él con control.
+func stand_up(seat: Seat) -> void:
+	_state = State.NORMAL
+	_seat = null
+	velocity = Vector3.ZERO
+	_collision.set_deferred("disabled", false)
+	global_position = seat.get_exit_position()
 
 
 func _physics_remote(delta: float) -> void:
@@ -125,6 +169,9 @@ func _refresh_identity() -> void:
 
 
 func _physics_local(delta: float) -> void:
+	_refresh_held()
+	if _state == State.SEATED:
+		return
 	var yaw: float = _camera.get_yaw()
 	var input: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(input.x, 0.0, input.y)
@@ -177,31 +224,65 @@ func _update_target() -> void:
 	_target_body = null
 	_target_grabbable = null
 	_target_interactable = null
+	if _state == State.SEATED:
+		return
 	var forward: Vector3 = Basis(Vector3.UP, _camera.get_yaw()) * Vector3.FORWARD
-	var best_distance: float = INF
+	# Se elige por separado lo que se agarra (clic) y lo que se usa (E): si no, una tapa o puerta
+	# más cercana le quitaría el objetivo a la maleta que está justo detrás.
+	var best_grab: float = INF
+	var best_use: float = INF
+	var grab_body: Node3D = null
+	var use_body: Node3D = null
 	for body: Node3D in _interaction_area.get_overlapping_bodies():
 		var grabbable: Grabbable = Grabbable.find_in(body) if _held == null else null
+		if grabbable != null and grabbable.is_held():
+			grabbable = null
 		var interactable: Interactable = Interactable.find_in(body)
 		if grabbable == null and interactable == null:
-			continue
-		if grabbable != null and grabbable.is_held():
 			continue
 		var offset: Vector3 = body.global_position - global_position
 		offset.y = 0.0
 		var distance: float = offset.length()
 		if distance > 0.01 and offset.normalized().dot(forward) < min_view_dot:
 			continue
-		if distance < best_distance:
-			best_distance = distance
-			_target_body = body
+		var improves_grab: bool = grabbable != null and distance < best_grab
+		var improves_use: bool = interactable != null and distance < best_use
+		if not (improves_grab or improves_use) or not _has_line_of_sight(body):
+			continue
+		if improves_grab:
+			best_grab = distance
+			grab_body = body
 			_target_grabbable = grabbable
+		if improves_use:
+			best_use = distance
+			use_body = body
 			_target_interactable = interactable
+	_target_body = grab_body if grab_body != null else use_body
+
+
+## Un rayo contra el mundo (capa 1) desde el pecho hasta el objetivo: si algo lo tapa (pared, puerta,
+## tapa cerrada), no se puede usar ni agarrar. Se corta un poco antes para no chocar con la superficie
+## en la que está montado el objetivo.
+func _has_line_of_sight(body: Node3D) -> bool:
+	var from: Vector3 = global_position + Vector3.UP * 0.5
+	var to: Vector3 = body.global_position
+	var length: float = from.distance_to(to)
+	if length < 0.5:
+		return true
+	to = to.move_toward(from, 0.25)
+	var query := PhysicsRayQueryParameters3D.create(from, to, 1, [get_rid(), (body as CollisionObject3D).get_rid()])
+	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
 func _update_prompt() -> void:
+	if _state == State.SEATED:
+		_prompt.text = "[E] Levantarse"
+		_prompt.global_position = global_position + Vector3.UP * 1.5
+		_prompt.visible = true
+		return
 	var lines: PackedStringArray = []
 	if _held != null:
-		lines.append("[Clic] Soltar   [Clic der.] Lanzar")
+		lines.append("[Clic] Soltar   [Clic der.] Lanzar" if _held.throwable else "[Clic] Soltar")
 	elif _target_grabbable != null:
 		lines.append("[Clic] " + _target_grabbable.prompt_text)
 	if _target_interactable != null:
@@ -217,17 +298,37 @@ func _update_prompt() -> void:
 
 
 func _grab(grabbable: Grabbable) -> void:
-	_held = grabbable
-	_held.released.connect(_on_held_released, CONNECT_ONE_SHOT)
-	_held.grab(self, _hold_point)
+	var callback: Callable = _on_holder_changed.bind(grabbable)
+	if not grabbable.holder_changed.is_connected(callback):
+		grabbable.holder_changed.connect(callback)
+	grabbable.request_grab()
 
 
 func _throw() -> void:
+	if not _held.throwable:
+		_held.release_local()
+		_held = null
+		return
 	var direction: Vector3 = _camera.get_aim_direction()
 	direction = (direction + Vector3.UP * tan(deg_to_rad(throw_up_angle))).normalized()
 	var flat_velocity := Vector3(velocity.x, 0.0, velocity.z)
-	_held.throw(direction * throw_speed + flat_velocity * throw_inherit_velocity)
-
-
-func _on_held_released() -> void:
+	_held.release_local(direction * throw_speed + flat_velocity * throw_inherit_velocity)
 	_held = null
+
+
+## El host confirmó (o cambió) el portador de un objeto que pedimos agarrar.
+func _on_holder_changed(new_holder_id: int, grabbable: Grabbable) -> void:
+	if new_holder_id == get_multiplayer_authority():
+		_held = grabbable
+		return
+	if _held == grabbable:
+		_held = null
+	var callback: Callable = _on_holder_changed.bind(grabbable)
+	if grabbable.holder_changed.is_connected(callback):
+		grabbable.holder_changed.disconnect(callback)
+
+
+## Olvida el objeto si ya no lo sostenemos (se soltó solo por atasco o el host lo liberó).
+func _refresh_held() -> void:
+	if _held != null and not _held.is_held_locally():
+		_held = null
