@@ -51,7 +51,9 @@ Todo cambio de estado compartido:
 - **Host:** fin de partida para todos y vuelta al menú. Sin migración de host.
 
 ## Reinicio (revancha)
-`Match` (host) pasa `LOBBY → FLIGHT → RESULTS → LOBBY`. Los sistemas son nodos hijos de `Match` (no autoloads) y exponen `reset()`; reiniciar es limpiar y volver a instanciar. Todo sistema nuevo nace sabiendo reiniciarse.
+`Match` (host) pasa `LOBBY → FLIGHT → RESULTS → LOBBY`. Los sistemas son nodos hijos de `Match` (no autoloads) y exponen `reset()`; el host llama `reset()` a todo nodo del grupo `match_resettable` (`Grabbable`, `Seat`, `Door`, `OverheadBin`; los objetos no se re-instancian, vuelven a su transform inicial). Todo sistema nuevo nace sabiendo reiniciarse.
+
+`Match` replica `state`, `roles` y `result_text` (StateSync, ON_CHANGE) y `time_left` (TimerSync, cada 0.25 s; cada peer lo descuenta entre paquetes). El host teletransporta a los jugadores por RPC al dueño (`Player.request_teleport`; solo se acepta si viene del host). Mientras la partida no está en `LOBBY`, `Network.accepting_players` es false y el host rechaza registros nuevos (`_rejected` avisa al cliente y `_kick_later` lo expulsa tras 0.3 s, porque `disconnect_peer` descarta lo encolado). Si se va el piloto o el aeromozo en vuelo, la partida pasa a resultados.
 
 ## Autoloads
 Solo dos: `Network` (conexión, roster, señales de conexión/desconexión; **implementado**) y `DebugTools` (atajos F1–F8, solo en builds de debug; **aún no existe**).
@@ -59,10 +61,11 @@ Solo dos: `Network` (conexión, roster, señales de conexión/desconexión; **im
 ## Estado de implementación
 - **Hecho (Fase 2):** conexión Host/Join, roster, spawner de jugadores, personaje con autoridad del dueño + interpolación (lerp simple hacia la última posición), desconexión de cliente y de host.
 - **Hecho (Fase 3):** objetos y estado discreto con el patrón petición → validación → broadcast (ver "Interacciones en red").
+- **Hecho (Fase 4):** estado de partida y roles replicados, teletransporte por RPC, reinicio por componente, bloqueo de unión fuera del lobby.
 - **Sin verificar:** partida llena (5º jugador), jitter por Tailscale. Si la interpolación se nota a tirones en red real, pasar a un buffer con timestamp.
 
 ## Interacciones en red (Fase 3)
-Los objetos de la escena (`Match/Level/...`) existen en todos los peers con la misma ruta: no hay spawner, solo `MultiplayerSynchronizer` con visibilidad pública. Cada uno lleva sus RPC en un nodo con el mismo path en todos los peers.
+Los objetos de la escena (`Match/Plane/...`) existen en todos los peers con la misma ruta: no hay spawner, solo `MultiplayerSynchronizer` con visibilidad pública. Cada uno lleva sus RPC en un nodo con el mismo path en todos los peers.
 
 - **`Grabbable`** (`scripts/components/grabbable.gd`): el cliente llama `request_grab` (RPC `any_peer`, `call_local`, al host). El host valida remitente con personaje, distancia (`max_grab_distance`), objeto libre y que el remitente no sostenga ya otra cosa (el primero que llega gana), y fija `holder_id`. `holder_id` se replica con un synchronizer del host (`HolderSync`, ON_CHANGE); su setter, en todos los peers, aplica las excepciones de colisión con el portador y reasigna la autoridad del cuerpo (portador o host). Solo el portador simula el seguimiento hacia su mano. Soltar/lanzar: el portador aplica la velocidad localmente y envía `_request_release(velocity)`; el host valida que sea el portador, recorta a `max_throw_speed`, toma el último transform replicado y devuelve la autoridad al host.
 - **`NetworkedBody`** (`scripts/components/networked_body.gd`): hijo de un `RigidBody3D` con un `TransformSync` (`sync_position`, `sync_rotation`, ALWAYS). La autoridad escribe y simula; el resto congela el cuerpo (kinematic) e interpola. Al cambiar de autoridad parte del último estado recibido (sin saltos).
