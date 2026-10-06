@@ -88,4 +88,4 @@ Reglas:
 - Git no estaba instalado al empezar (Fase 0): ver `DEVELOPMENT_PLAN.md`.
 
 ## Estado actual
-Fase 0 completada (esperando confirmación del usuario). Siguiente: Fase 1 — prototipo local del personaje. Detalle en `DEVELOPMENT_PLAN.md`.
+Fase 0 aceptada y en `main`. Fase 1 (prototipo local del personaje) implementada en la rama `fase-1-personaje-local`, esperando prueba y aceptación del usuario antes de mergear. Siguiente: Fase 2 — multijugador básico. Detalle en `DEVELOPMENT_PLAN.md`.
