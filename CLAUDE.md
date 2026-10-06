@@ -26,7 +26,7 @@ Diseño: `GAME_DESIGN.md` · Red: `NETWORKING.md` · Estado y fases: `DEVELOPMEN
 
 ## Arquitectura del proyecto (obligatoria)
 
-Separación por **tipo de archivo** en el primer nivel y por **dominio** en el segundo. Las subcarpetas de `scenes/` y `scripts/` se **reflejan** una a una.
+Separación por **tipo de archivo** en el primer nivel y por **dominio** en el segundo. Las subcarpetas de `scenes/` y `scripts/` se **reflejan** una a una. El árbol es la estructura **objetivo**: no todos los archivos listados existen aún (se crean en la fase que los necesita); `DEVELOPMENT_PLAN.md` dice cuándo.
 
 ```
 res://
@@ -37,7 +37,7 @@ res://
 │  ├─ plane/            plane.tscn, seat.tscn, door.tscn, overhead_bin.tscn, cockpit.tscn...
 │  ├─ props/            cart.tscn, cup.tscn, bag.tscn, grabbable_box.tscn
 │  ├─ match/            match.tscn
-│  ├─ ui/               hud.tscn, pilot_panel.tscn, results.tscn
+│  ├─ ui/               pause_menu.tscn, hud.tscn, pilot_panel.tscn, results.tscn
 │  └─ test/             sandbox.tscn y escenas de prueba (nunca referenciadas por el juego real)
 ├─ scripts/             SOLO .gd
 │  ├─ autoload/         network.gd, debug_tools.gd  (únicos scripts sin escena)
@@ -52,7 +52,7 @@ Reglas:
 1. **Un script por escena, mismo nombre, ruta espejo:** `scenes/player/player.tscn` ↔ `scripts/player/player.gd`. Quien busque una escena encuentra su script sin pensar.
 2. **Nada suelto en la raíz** salvo los archivos listados. Si un archivo nuevo no encaja en ninguna carpeta, **preguntar al usuario antes de inventar una**.
 3. **Comportamiento reutilizable = componente** (`scripts/components/`), no herencia profunda ni copy-paste. Ej.: `Grabbable`, `Interactable` como nodos/scripts que se añaden a cualquier objeto.
-4. **Sistemas de partida** (`scripts/systems/`) son nodos hijos de `Match`, no autoloads. Solo hay 2 autoloads: `Network` y `DebugTools`.
+4. **Sistemas de partida** (`scripts/systems/`) son nodos hijos de `Match`, no autoloads. Solo hay 2 autoloads: `Network` (existe) y `DebugTools` (se crea cuando haga falta; aún no existe).
 5. **Datos de balance en Resources**, nunca números mágicos en la lógica. La *clase* va en `scripts/resources/`, las *instancias* en `resources/`.
 6. **Materiales:** reutilizar `.tres` de `resources/materials/` (colores planos por nombre: `mat_player_red`, `mat_seat_gray`...). No crear materiales inline repetidos.
 7. **Referencias entre escenas por ruta `res://` o `preload`/`@export`**, nunca rutas relativas frágiles (`../../Algo`). Para hijos propios usar `@onready` con `%NombreUnico`.
@@ -86,7 +86,16 @@ Reglas:
 - Godot: `C:\Users\PC\Desktop\Godot_v4.7.2-stable_win64.exe`
 - Verificación headless: `& $godot --headless --path . --quit` (parseo/carga) y `--quit-after N` para ejecutar N frames.
 - Multi-instancia en el editor: Debug → Customize Run Instances. Primera instancia = Host; el resto = Join a `127.0.0.1`.
-- Git no estaba instalado al empezar (Fase 0): ver `DEVELOPMENT_PLAN.md`.
+- Argumentos de arranque (tras `--`): `--host`, `--join=IP`, `--name=Nombre` (saltan el menú; útiles en Customize Run Instances).
 
 ## Estado actual
-Fases 0 y 1 aceptadas y en `main`. Fase 2 (multijugador básico) implementada en la rama `fase-2-multijugador-basico`, esperando prueba manual y aceptación del usuario antes de mergear. Siguiente: Fase 3 — interacciones sincronizadas. Detalle en `DEVELOPMENT_PLAN.md`.
+Fases 0–2 aceptadas y en `main`. Existe: autoload `Network` (host/join, roster, registro por RPC), Main (menú ↔ partida), `Match` mínimo con `MultiplayerSpawner`, `Player` con autoridad del dueño e interpolación en remotos, menú de pausa. `Grabbable` e `Interactable` siguen siendo **solo locales** (sin red) hasta la Fase 3. Siguiente: Fase 3 — interacciones sincronizadas. Pendientes conocidos y detalle en `DEVELOPMENT_PLAN.md`.
+
+## Cierre de fase (checklist obligatorio)
+Antes del commit de cierre, y **después** de que el usuario acepte, revisar que ningún doc quede desfasado:
+1. `DEVELOPMENT_PLAN.md`: fase en ✅, "Registro de fases cerradas" (qué se verificó y qué no) y "Pendientes conocidos".
+2. Este archivo: "Estado actual" redactado como fase **aceptada y en `main`** (nunca "esperando aceptación"), y el árbol de "Arquitectura" y la regla de autoloads si cambiaron.
+3. `NETWORKING.md` si cambió la red (autoridad, RPCs, flujo de registro, desconexiones, `Grabbable`/`Interactable` en red).
+4. `GAME_DESIGN.md` si cambió una decisión de diseño.
+5. Borrar lo huérfano (escenas temporales, código comentado, docs que describan cosas que ya no existen).
+Mientras el usuario prueba, "Estado actual" puede decir "esperando aceptación"; el commit de cierre lo reescribe.

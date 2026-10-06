@@ -43,6 +43,14 @@ Fases del vuelo, tormentas, 1–2 incidentes, resultados con momentos. **Playtes
 ### Fase 9 — Game feel y pulido ⬜
 Squash & stretch, partículas, sonidos mínimos, balance, bugs.
 
+## Pendientes conocidos
+- `Grabbable`/`Interactable` y `test_switch` son solo locales → se rehacen en red en la **Fase 3**.
+- `scenes/match/match.tscn` tiene un `Level` provisional (copia de la geometría del sandbox, sin cajas); lo reemplaza `plane.tscn` en la **Fase 4**. Entonces `scenes/test/sandbox.tscn` puede borrarse o dejarse solo como banco de pruebas.
+- `DebugTools` (autoload, atajos F1–F8) aún no existe; se crea cuando una fase lo necesite.
+- Interpolación de remotos: lerp simple. Evaluar buffer con timestamp si hay jitter en Tailscale.
+- Sin verificar: partida llena (5º jugador) y juego por Tailscale.
+- Un jugador que se une con la partida ya en marcha aparece en su slot directamente; el flujo `LOBBY → FLIGHT → RESULTS` y el bloqueo de unión en vuelo llegan en la **Fase 4**.
+
 ## Estructura de carpetas
 
 La estructura y sus reglas viven en `CLAUDE.md` → "Arquitectura del proyecto" (fuente única de verdad): `scenes/` (solo .tscn), `scripts/` (solo .gd, espejo de scenes + `autoload/`, `systems/`, `components/`, `resources/`) y `resources/` (solo instancias .tres).
