@@ -54,6 +54,7 @@ func _process(delta: float) -> void:
 func setup(new_target: Node3D) -> void:
 	target = new_target
 	global_position = target.global_position + Vector3.UP * height_offset
+	_camera.make_current()
 
 
 ## Ángulo horizontal (radianes) hacia donde mira la cámara.

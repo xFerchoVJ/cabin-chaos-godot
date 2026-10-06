@@ -21,7 +21,8 @@ Diseño: `GAME_DESIGN.md` · Red: `NETWORKING.md` · Estado y fases: `DEVELOPMEN
 - **Al terminar la fase:** verificar (headless + bloque "Cómo probar") → el usuario prueba y **acepta** → recién entonces: commit final de cierre (con `DEVELOPMENT_PLAN.md` y "Estado actual" actualizados) → merge a `main` (`git merge --no-ff` para conservar el historial de la fase) → opcionalmente borrar la rama.
 - **No hacer merge, commit en `main` ni push sin que el usuario lo haya pedido o aceptado explícitamente.** Si el usuario encuentra un bug durante la prueba, se arregla en la misma rama antes del merge.
 - Antes de crear la rama o commitear, revisar `git status` y que no haya archivos basura (`.godot/`, `.claude/settings.local.json` están ignorados).
-- Los mensajes de commit terminan con la línea de coautoría indicada por el entorno.
+- Nunca hacer coautor en el commit, el commit es sólo del usuario.
+- Conventional commits.
 
 ## Arquitectura del proyecto (obligatoria)
 
@@ -88,4 +89,4 @@ Reglas:
 - Git no estaba instalado al empezar (Fase 0): ver `DEVELOPMENT_PLAN.md`.
 
 ## Estado actual
-Fase 0 aceptada y en `main`. Fase 1 (prototipo local del personaje) implementada en la rama `fase-1-personaje-local`, esperando prueba y aceptación del usuario antes de mergear. Siguiente: Fase 2 — multijugador básico. Detalle en `DEVELOPMENT_PLAN.md`.
+Fases 0 y 1 aceptadas y en `main`. Fase 2 (multijugador básico) implementada en la rama `fase-2-multijugador-basico`, esperando prueba manual y aceptación del usuario antes de mergear. Siguiente: Fase 3 — interacciones sincronizadas. Detalle en `DEVELOPMENT_PLAN.md`.
