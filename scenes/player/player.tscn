@@ -1,0 +1,66 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/player/player_camera.tscn" id="2_cam"]
+[ext_resource type="Material" path="res://resources/materials/mat_player_red.tres" id="3_red"]
+[ext_resource type="Material" path="res://resources/materials/mat_wall_light.tres" id="4_light"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+material = ExtResource("3_red")
+radius = 0.4
+height = 1.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_nose"]
+material = ExtResource("4_light")
+size = Vector3(0.3, 0.2, 0.3)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_interact"]
+radius = 1.8
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 5
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Model" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="Body" type="MeshInstance3D" parent="Model"]
+mesh = SubResource("CapsuleMesh_body")
+
+[node name="Nose" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -0.4)
+mesh = SubResource("BoxMesh_nose")
+
+[node name="HoldPoint" type="Marker3D" parent="Model"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -1.1)
+
+[node name="InteractionArea" type="Area3D" parent="."]
+unique_name_in_owner = true
+collision_layer = 0
+collision_mask = 12
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
+shape = SubResource("SphereShape3D_interact")
+
+[node name="PromptLabel" type="Label3D" parent="."]
+unique_name_in_owner = true
+top_level = true
+pixel_size = 0.004
+billboard = 1
+no_depth_test = true
+fixed_size = false
+font_size = 48
+outline_size = 12
+visible = false
+
+[node name="PlayerCamera" parent="." instance=ExtResource("2_cam")]
+unique_name_in_owner = true

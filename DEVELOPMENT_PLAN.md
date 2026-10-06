@@ -14,10 +14,9 @@ Cada fase termina ejecutable, con bloque "Cómo probar" y espera confirmación a
 ## Fases
 
 ### Fase 0 — Fundamentos y documentación ✅
-Docs, estructura, Input Map, warnings de tipado, capas de colisión, escena principal vacía (`res://main/main.tscn`).
-Pendiente de entorno (acción del usuario): instalar Git (no está en PATH) y hacer `git init`.
+Docs, estructura, Input Map, warnings de tipado, capas de colisión, escena principal vacía (`res://scenes/main/main.tscn`).
 
-### Fase 1 — Prototipo local del personaje ⬜
+### Fase 1 — Prototipo local del personaje ✅
 Sandbox, `CharacterBody3D`, cámara 3ª persona con `SpringArm3D`, interacción, agarrar/soltar/lanzar caja. Escrito consciente de la red (`is_multiplayer_authority()`).
 
 ### Fase 2 — Multijugador básico ⬜
@@ -51,3 +50,4 @@ Las carpetas se crean cuando se necesitan (git no versiona carpetas vacías). Es
 
 ## Registro de fases cerradas
 - **Fase 0:** verificada con `godot --headless --import` y ejecución de 30 frames de `main.tscn` (0 errores/warnings); Input Map comprobado con un script que lista las acciones. Nota: F5/F8 coinciden con atajos del editor (Run/Stop); dentro de la ventana del juego funcionan, pero si molestan se reasignan.
+- **Fase 1:** verificada con `--headless --import`, 120 frames del sandbox (0 errores/warnings), ejecución real con el MCP de Godot (renderer GL Compatibility, 0 errores) y un script temporal headless que comprobó: aterrizaje, avance, límite de velocidad, frenado, salto, selección de objetivo, agarrar (la caja queda a 0.01 m del punto de agarre), lanzar (12 m/s) e interruptor. Limitación: en headless no se puede capturar el ratón, así que agarrar/lanzar se probó llamando a la lógica, no con clics; cámara y feel requieren prueba manual.
