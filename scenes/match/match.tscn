@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="2_pause"]
 [ext_resource type="Material" path="res://resources/materials/mat_floor_gray.tres" id="3_floor"]
 [ext_resource type="Material" path="res://resources/materials/mat_wall_light.tres" id="4_wall"]
+[ext_resource type="PackedScene" path="res://scenes/props/grabbable_box.tscn" id="5_box"]
 
 [sub_resource type="Environment" id="Environment_match"]
 background_mode = 1
@@ -114,6 +115,24 @@ shape = SubResource("BoxShape3D_step")
 
 [node name="Mesh" type="MeshInstance3D" parent="Level/Step"]
 mesh = SubResource("BoxMesh_step")
+
+[node name="Box1" parent="Level" instance=ExtResource("5_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.4, -4)
+
+[node name="Box2" parent="Level" instance=ExtResource("5_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.4, -4)
+
+[node name="Box3" parent="Level" instance=ExtResource("5_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.4, -4)
+
+[node name="Box4" parent="Level" instance=ExtResource("5_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.4, -4)
+
+[node name="Box5" parent="Level" instance=ExtResource("5_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.4, -6)
+
+[node name="Box6" parent="Level" instance=ExtResource("5_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.4, -6)
 
 [node name="SpawnPoints" type="Node3D" parent="."]
 unique_name_in_owner = true

@@ -61,6 +61,12 @@ func quit_to_menu() -> void:
 	disconnected.emit("")
 
 
+## Peer que originó el RPC en curso. En una llamada local (host o modo offline) devuelve el id propio.
+func get_sender_id() -> int:
+	var sender: int = multiplayer.get_remote_sender_id()
+	return sender if sender != 0 else multiplayer.get_unique_id()
+
+
 func get_player_name(id: int) -> String:
 	var info: Dictionary = players.get(id, {})
 	return info.get("name", "")

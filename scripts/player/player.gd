@@ -1,3 +1,4 @@
+class_name Player
 extends CharacterBody3D
 ## Personaje controlado por su dueño (autoridad multijugador). Movimiento relativo a la cámara,
 ## salto con coyote time y jump buffer, interacción con [E] y agarrar/soltar/lanzar con el ratón.
@@ -63,6 +64,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group("players")
 	sync_position = global_position
 	sync_yaw = _model.rotation.y
 	# El color y el nombre salen del roster, que en un cliente puede llegar después de nacer.
@@ -80,6 +82,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	_refresh_held()
 	_update_target()
 	_update_prompt()
 
@@ -89,7 +92,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("grab"):
 		if _held != null:
-			_held.release()
+			_held.release_local()
+			_held = null
 		elif _target_grabbable != null:
 			_grab(_target_grabbable)
 	elif event.is_action_pressed("throw") and _held != null:
@@ -105,6 +109,18 @@ func _physics_process(delta: float) -> void:
 		sync_yaw = _model.rotation.y
 	else:
 		_physics_remote(delta)
+
+
+## Devuelve el personaje cuyo dueño es `peer_id`, o null. El host lo usa para validar a quién le llega un RPC.
+static func find_by_peer(tree: SceneTree, peer_id: int) -> Player:
+	for node: Node in tree.get_nodes_in_group("players"):
+		if node.get_multiplayer_authority() == peer_id:
+			return node as Player
+	return null
+
+
+func get_hold_point() -> Marker3D:
+	return _hold_point
 
 
 func _physics_remote(delta: float) -> void:
@@ -125,6 +141,7 @@ func _refresh_identity() -> void:
 
 
 func _physics_local(delta: float) -> void:
+	_refresh_held()
 	var yaw: float = _camera.get_yaw()
 	var input: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(input.x, 0.0, input.y)
@@ -201,7 +218,7 @@ func _update_target() -> void:
 func _update_prompt() -> void:
 	var lines: PackedStringArray = []
 	if _held != null:
-		lines.append("[Clic] Soltar   [Clic der.] Lanzar")
+		lines.append("[Clic] Soltar   [Clic der.] Lanzar" if _held.throwable else "[Clic] Soltar")
 	elif _target_grabbable != null:
 		lines.append("[Clic] " + _target_grabbable.prompt_text)
 	if _target_interactable != null:
@@ -217,17 +234,37 @@ func _update_prompt() -> void:
 
 
 func _grab(grabbable: Grabbable) -> void:
-	_held = grabbable
-	_held.released.connect(_on_held_released, CONNECT_ONE_SHOT)
-	_held.grab(self, _hold_point)
+	var callback: Callable = _on_holder_changed.bind(grabbable)
+	if not grabbable.holder_changed.is_connected(callback):
+		grabbable.holder_changed.connect(callback)
+	grabbable.request_grab()
 
 
 func _throw() -> void:
+	if not _held.throwable:
+		_held.release_local()
+		_held = null
+		return
 	var direction: Vector3 = _camera.get_aim_direction()
 	direction = (direction + Vector3.UP * tan(deg_to_rad(throw_up_angle))).normalized()
 	var flat_velocity := Vector3(velocity.x, 0.0, velocity.z)
-	_held.throw(direction * throw_speed + flat_velocity * throw_inherit_velocity)
-
-
-func _on_held_released() -> void:
+	_held.release_local(direction * throw_speed + flat_velocity * throw_inherit_velocity)
 	_held = null
+
+
+## El host confirmó (o cambió) el portador de un objeto que pedimos agarrar.
+func _on_holder_changed(new_holder_id: int, grabbable: Grabbable) -> void:
+	if new_holder_id == get_multiplayer_authority():
+		_held = grabbable
+		return
+	if _held == grabbable:
+		_held = null
+	var callback: Callable = _on_holder_changed.bind(grabbable)
+	if grabbable.holder_changed.is_connected(callback):
+		grabbable.holder_changed.disconnect(callback)
+
+
+## Olvida el objeto si ya no lo sostenemos (se soltó solo por atasco o el host lo liberó).
+func _refresh_held() -> void:
+	if _held != null and not _held.is_held_locally():
+		_held = null
