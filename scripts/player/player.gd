@@ -28,6 +28,18 @@ extends CharacterBody3D
 ## Mínimo producto punto entre la dirección de la cámara y el objeto para poder seleccionarlo.
 @export_range(-1.0, 1.0) var min_view_dot: float = 0.2
 
+@export_group("Red")
+## Qué tan rápido el personaje remoto alcanza la última posición recibida.
+@export var interpolation_speed: float = 15.0
+## Si el remoto está más lejos que esto de la posición recibida, se teletransporta.
+@export var snap_distance: float = 3.0
+## Materiales de color por slot de jugador (0–3).
+@export var slot_materials: Array[Material] = []
+
+## Replicados por el MultiplayerSynchronizer desde el dueño hacia los demás.
+var sync_position: Vector3 = Vector3.ZERO
+var sync_yaw: float = 0.0
+
 var _held: Grabbable = null
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
@@ -40,18 +52,31 @@ var _target_interactable: Interactable = null
 @onready var _hold_point: Marker3D = %HoldPoint
 @onready var _interaction_area: Area3D = %InteractionArea
 @onready var _prompt: Label3D = %PromptLabel
+@onready var _body_mesh: MeshInstance3D = %Body
+@onready var _name_label: Label3D = %NameLabel
+
+
+func _enter_tree() -> void:
+	# El nombre del nodo es el peer id del dueño. Debe fijarse antes de _ready y del synchronizer.
+	if name.is_valid_int():
+		set_multiplayer_authority(name.to_int())
 
 
 func _ready() -> void:
-	if not is_multiplayer_authority():
+	sync_position = global_position
+	sync_yaw = _model.rotation.y
+	# El color y el nombre salen del roster, que en un cliente puede llegar después de nacer.
+	Network.roster_changed.connect(_refresh_identity)
+	_refresh_identity()
+	if is_multiplayer_authority():
+		_name_label.queue_free()
+		_camera.setup(self)
+	else:
 		# Personaje de otro jugador: sin input ni cámara; la red lo mueve.
 		_camera.queue_free()
 		_prompt.queue_free()
-		set_physics_process(false)
 		set_process(false)
 		set_process_unhandled_input(false)
-		return
-	_camera.setup(self)
 
 
 func _process(_delta: float) -> void:
@@ -74,6 +99,32 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_multiplayer_authority():
+		_physics_local(delta)
+		sync_position = global_position
+		sync_yaw = _model.rotation.y
+	else:
+		_physics_remote(delta)
+
+
+func _physics_remote(delta: float) -> void:
+	if global_position.distance_to(sync_position) > snap_distance:
+		global_position = sync_position
+	else:
+		global_position = global_position.lerp(sync_position, 1.0 - exp(-interpolation_speed * delta))
+	_turn_model(sync_yaw, delta)
+
+
+func _refresh_identity() -> void:
+	var id: int = name.to_int()
+	if is_instance_valid(_name_label) and not _name_label.is_queued_for_deletion():
+		_name_label.text = Network.get_player_name(id)
+	var slot: int = Network.get_slot(id)
+	if slot < slot_materials.size():
+		_body_mesh.material_override = slot_materials[slot]
+
+
+func _physics_local(delta: float) -> void:
 	var yaw: float = _camera.get_yaw()
 	var input: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(input.x, 0.0, input.y)

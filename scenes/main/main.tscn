@@ -1,3 +1,10 @@
 [gd_scene format=3 uid="uid://tgq2j53s7qbo"]
 
-[node name="Main" type="Node3D" unique_id=785282099]
+[ext_resource type="Script" path="res://scripts/main/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/main/connect_menu.tscn" id="2_menu"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_main")
+
+[node name="ConnectMenu" parent="." instance=ExtResource("2_menu")]
+unique_name_in_owner = true

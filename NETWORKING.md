@@ -55,5 +55,11 @@ Todo cambio de estado compartido:
 ## Autoloads
 Solo dos: `Network` (conexión, lista de peers, señales de conexión/desconexión) y `DebugTools` (atajos F1–F8, solo en builds de debug).
 
+## Registro de jugadores (roster)
+`Network.players` (`peer id → {name, slot}`) lo mantiene el host. Un cliente, al conectar, llama `_request_register.rpc_id(1, nombre)`; el host sanea el nombre, asigna el primer slot libre (0–3: color y punto de aparición) y replica el roster con `_sync_roster.rpc`. `Match` (solo en el host) spawnea/borra el `Player` de cada peer con un `MultiplayerSpawner` y `spawn_function`; el nodo se llama como el peer id y de ahí sale su autoridad.
+
+## Argumentos de arranque
+Tras `--` en la línea de comandos: `--host`, `--join=IP`, `--name=Nombre`. En *Customize Run Instances* sirven para saltarse el menú.
+
 ## Probar red
 Debug → Customize Run Instances (2–4). Primera instancia: Host. Resto: Join `127.0.0.1`. Con Tailscale: IP `100.x.y.z` del host, puerto por defecto 7777.
