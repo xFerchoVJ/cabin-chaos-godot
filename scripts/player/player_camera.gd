@@ -22,6 +22,9 @@ func _ready() -> void:
 	top_level = true
 	_spring_arm.spring_length = arm_length
 	_pitch.rotation.x = deg_to_rad(-20.0)
+	# El techo del avión choca con todo menos con la cámara: así no la acerca al personaje.
+	for node: Node in get_tree().get_nodes_in_group("camera_transparent"):
+		_spring_arm.add_excluded_object((node as CollisionObject3D).get_rid())
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 

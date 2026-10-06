@@ -16,6 +16,7 @@ var occupant_id: int = 0:
 
 func _ready() -> void:
 	add_to_group("seats")
+	add_to_group("match_resettable")
 	_interactable.interacted.connect(_on_interacted)
 	if multiplayer.is_server():
 		Network.player_left.connect(_on_player_left)
@@ -28,6 +29,11 @@ func get_sit_point() -> Marker3D:
 
 func get_exit_position() -> Vector3:
 	return to_global(exit_offset)
+
+
+## Solo host (lo llama Match): lo deja libre.
+func reset() -> void:
+	occupant_id = 0
 
 
 ## Pide al host levantarse. Solo lo acepta si quien pregunta es el ocupante.

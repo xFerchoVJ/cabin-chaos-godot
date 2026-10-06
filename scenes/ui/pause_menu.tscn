@@ -34,6 +34,18 @@ text = "Jugadores conectados"
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="StartButton" type="Button" parent="Panel/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Iniciar vuelo"
+
+[node name="LandButton" type="Button" parent="Panel/Margin/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Aterrizar ya (debug)"
+
 [node name="LeaveButton" type="Button" parent="Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2

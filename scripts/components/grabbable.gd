@@ -44,12 +44,15 @@ var _holder: Player = null
 ## El portador ya lo soltó localmente y espera a que el host lo confirme (no debe seguir tirando del objeto).
 var _local_released: bool = false
 var _networked: NetworkedBody = null
+var _initial_transform: Transform3D = Transform3D.IDENTITY
 
 @onready var _body: RigidBody3D = get_parent() as RigidBody3D
 
 
 func _ready() -> void:
 	add_to_group("grabbables")
+	add_to_group("match_resettable")
+	_initial_transform = _body.global_transform
 	_networked = NetworkedBody.find_in(_body)
 	if multiplayer.is_server():
 		Network.player_left.connect(_on_player_left)
@@ -86,6 +89,14 @@ func is_held() -> bool:
 ## Este peer es el portador y aún no lo ha soltado.
 func is_held_locally() -> bool:
 	return holder_id == multiplayer.get_unique_id() and not _local_released
+
+
+## Solo host (lo llama Match): lo suelta y lo devuelve quieto a su sitio inicial.
+func reset() -> void:
+	holder_id = 0
+	_body.global_transform = _initial_transform
+	_body.linear_velocity = Vector3.ZERO
+	_body.angular_velocity = Vector3.ZERO
 
 
 ## Pide al host agarrar el objeto. El resultado llega por `holder_changed`.

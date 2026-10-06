@@ -1,0 +1,460 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://resources/materials/mat_floor_gray.tres" id="m_floor"]
+[ext_resource type="Material" path="res://resources/materials/mat_wall_light.tres" id="m_wall"]
+[ext_resource type="Material" path="res://resources/materials/mat_window_dark.tres" id="m_window"]
+[ext_resource type="PackedScene" path="res://scenes/plane/door.tscn" id="p_door"]
+[ext_resource type="Material" path="res://resources/materials/mat_console_dark.tres" id="m_console"]
+[ext_resource type="PackedScene" path="res://scenes/plane/seat.tscn" id="p_seat"]
+[ext_resource type="Material" path="res://resources/materials/mat_carpet_red.tres" id="m_carpet"]
+[ext_resource type="Material" path="res://resources/materials/mat_curtain_red.tres" id="m_curtain"]
+[ext_resource type="PackedScene" path="res://scenes/plane/overhead_bin.tscn" id="p_bin"]
+[ext_resource type="PackedScene" path="res://scenes/props/bag.tscn" id="p_bag"]
+[ext_resource type="Material" path="res://resources/materials/mat_cart_steel.tres" id="m_steel"]
+[ext_resource type="PackedScene" path="res://scenes/props/cart.tscn" id="p_cart"]
+[ext_resource type="PackedScene" path="res://scenes/props/grabbable_box.tscn" id="p_box"]
+
+[sub_resource type="BoxShape3D" id="Shape_0"]
+size = Vector3(5.4, 1, 24.4)
+
+[sub_resource type="BoxMesh" id="Mesh_1"]
+material = ExtResource("m_floor")
+size = Vector3(5.4, 1, 24.4)
+
+[sub_resource type="BoxShape3D" id="Shape_2"]
+size = Vector3(0.2, 2.6, 24)
+
+[sub_resource type="BoxMesh" id="Mesh_3"]
+material = ExtResource("m_wall")
+size = Vector3(0.2, 2.6, 24)
+
+[sub_resource type="BoxShape3D" id="Shape_4"]
+size = Vector3(5.4, 2.6, 0.2)
+
+[sub_resource type="BoxMesh" id="Mesh_5"]
+material = ExtResource("m_wall")
+size = Vector3(5.4, 2.6, 0.2)
+
+[sub_resource type="BoxShape3D" id="Shape_6"]
+size = Vector3(5.4, 0.2, 24.4)
+
+[sub_resource type="PlaneMesh" id="Mesh_ceiling"]
+material = ExtResource("m_wall")
+flip_faces = true
+size = Vector2(5.4, 24.4)
+
+[sub_resource type="BoxMesh" id="Mesh_7"]
+material = ExtResource("m_window")
+size = Vector3(0.05, 0.5, 0.8)
+
+[sub_resource type="BoxShape3D" id="Shape_8"]
+size = Vector3(2, 2.6, 0.2)
+
+[sub_resource type="BoxMesh" id="Mesh_9"]
+material = ExtResource("m_wall")
+size = Vector3(2, 2.6, 0.2)
+
+[sub_resource type="BoxShape3D" id="Shape_10"]
+size = Vector3(3, 0.9, 0.4)
+
+[sub_resource type="BoxMesh" id="Mesh_11"]
+material = ExtResource("m_console")
+size = Vector3(3, 0.9, 0.4)
+
+[sub_resource type="BoxMesh" id="Mesh_12"]
+material = ExtResource("m_carpet")
+size = Vector3(5, 0.02, 4.5)
+
+[sub_resource type="BoxMesh" id="Mesh_13"]
+material = ExtResource("m_curtain")
+size = Vector3(5, 2.6, 0.05)
+
+[sub_resource type="BoxShape3D" id="Shape_14"]
+size = Vector3(0.8, 1, 3)
+
+[sub_resource type="BoxMesh" id="Mesh_15"]
+material = ExtResource("m_steel")
+size = Vector3(0.8, 1, 3)
+
+[sub_resource type="BoxShape3D" id="Shape_16"]
+size = Vector3(2.4, 2.6, 0.2)
+
+[sub_resource type="BoxMesh" id="Mesh_17"]
+material = ExtResource("m_wall")
+size = Vector3(2.4, 2.6, 0.2)
+
+[sub_resource type="BoxShape3D" id="Shape_18"]
+size = Vector3(0.2, 2.6, 2.4)
+
+[sub_resource type="BoxMesh" id="Mesh_19"]
+material = ExtResource("m_wall")
+size = Vector3(0.2, 2.6, 2.4)
+
+[sub_resource type="BoxShape3D" id="Shape_20"]
+size = Vector3(0.7, 2.6, 0.2)
+
+[sub_resource type="BoxMesh" id="Mesh_21"]
+material = ExtResource("m_wall")
+size = Vector3(0.7, 2.6, 0.2)
+
+[node name="Plane" type="Node3D"]
+
+[node name="Hull" type="Node3D" parent="."]
+
+[node name="Floor" type="StaticBody3D" parent="Hull"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, -2)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hull/Floor"]
+shape = SubResource("Shape_0")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hull/Floor"]
+mesh = SubResource("Mesh_1")
+
+[node name="WallLeft" type="StaticBody3D" parent="Hull"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6, 1.3, -2)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hull/WallLeft"]
+shape = SubResource("Shape_2")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hull/WallLeft"]
+mesh = SubResource("Mesh_3")
+
+[node name="WallRight" type="StaticBody3D" parent="Hull"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.6, 1.3, -2)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hull/WallRight"]
+shape = SubResource("Shape_2")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hull/WallRight"]
+mesh = SubResource("Mesh_3")
+
+[node name="Nose" type="StaticBody3D" parent="Hull"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -14.1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hull/Nose"]
+shape = SubResource("Shape_4")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hull/Nose"]
+mesh = SubResource("Mesh_5")
+
+[node name="Tail" type="StaticBody3D" parent="Hull"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 10.1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hull/Tail"]
+shape = SubResource("Shape_4")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hull/Tail"]
+mesh = SubResource("Mesh_5")
+
+[node name="Ceiling" type="StaticBody3D" groups=["camera_transparent"] parent="Hull"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, -2)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hull/Ceiling"]
+shape = SubResource("Shape_6")
+
+[node name="Mesh" type="MeshInstance3D" parent="Hull/Ceiling"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_ceiling")
+
+[node name="Windows" type="Node3D" parent="."]
+
+[node name="WindowL1" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.48, 1.05, -10.5)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowR1" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.48, 1.05, -10.5)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowL2" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.48, 1.05, -8.8)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowR2" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.48, 1.05, -8.8)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowL3" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.48, 1.05, -5.5)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowR3" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.48, 1.05, -5.5)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowL4" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.48, 1.05, -3.9)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowR4" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.48, 1.05, -3.9)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowL5" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.48, 1.05, -2.3)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowR5" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.48, 1.05, -2.3)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowL6" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.48, 1.05, -0.7)
+mesh = SubResource("Mesh_7")
+
+[node name="WindowR6" type="MeshInstance3D" parent="Windows"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.48, 1.05, -0.7)
+mesh = SubResource("Mesh_7")
+
+[node name="Cockpit" type="Node3D" parent="."]
+
+[node name="BulkheadLeft" type="StaticBody3D" parent="Cockpit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1.3, -11.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cockpit/BulkheadLeft"]
+shape = SubResource("Shape_8")
+
+[node name="Mesh" type="MeshInstance3D" parent="Cockpit/BulkheadLeft"]
+mesh = SubResource("Mesh_9")
+
+[node name="BulkheadRight" type="StaticBody3D" parent="Cockpit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1.3, -11.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cockpit/BulkheadRight"]
+shape = SubResource("Shape_8")
+
+[node name="Mesh" type="MeshInstance3D" parent="Cockpit/BulkheadRight"]
+mesh = SubResource("Mesh_9")
+
+[node name="CockpitDoor" parent="Cockpit" instance=ExtResource("p_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, -11.5)
+
+[node name="Console" type="StaticBody3D" parent="Cockpit"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -13.7)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Cockpit/Console"]
+shape = SubResource("Shape_10")
+
+[node name="Mesh" type="MeshInstance3D" parent="Cockpit/Console"]
+mesh = SubResource("Mesh_11")
+
+[node name="PilotSeat" parent="Cockpit" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -12.4)
+
+[node name="FirstClass" type="Node3D" parent="."]
+
+[node name="Carpet" type="MeshInstance3D" parent="FirstClass"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, -9.25)
+mesh = SubResource("Mesh_12")
+
+[node name="Curtain" type="MeshInstance3D" parent="FirstClass"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -7)
+mesh = SubResource("Mesh_13")
+
+[node name="Seat1" parent="FirstClass" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, -10.5)
+exit_offset = Vector3(1.5, 0.2, 0)
+
+[node name="Seat2" parent="FirstClass" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, -10.5)
+exit_offset = Vector3(-1.5, 0.2, 0)
+
+[node name="Seat3" parent="FirstClass" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0, -8.8)
+exit_offset = Vector3(1.5, 0.2, 0)
+
+[node name="Seat4" parent="FirstClass" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 0, -8.8)
+exit_offset = Vector3(-1.5, 0.2, 0)
+
+[node name="Economy" type="Node3D" parent="."]
+
+[node name="Seat1" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9, 0, -5.5)
+exit_offset = Vector3(1.9, 0.2, 0)
+
+[node name="Seat2" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -5.5)
+exit_offset = Vector3(1, 0.2, 0)
+
+[node name="Seat3" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -5.5)
+exit_offset = Vector3(-1, 0.2, 0)
+
+[node name="Seat4" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0, -5.5)
+exit_offset = Vector3(-1.9, 0.2, 0)
+
+[node name="Seat5" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9, 0, -3.9)
+exit_offset = Vector3(1.9, 0.2, 0)
+
+[node name="Seat6" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -3.9)
+exit_offset = Vector3(1, 0.2, 0)
+
+[node name="Seat7" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -3.9)
+exit_offset = Vector3(-1, 0.2, 0)
+
+[node name="Seat8" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0, -3.9)
+exit_offset = Vector3(-1.9, 0.2, 0)
+
+[node name="Seat9" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9, 0, -2.3)
+exit_offset = Vector3(1.9, 0.2, 0)
+
+[node name="Seat10" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -2.3)
+exit_offset = Vector3(1, 0.2, 0)
+
+[node name="Seat11" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -2.3)
+exit_offset = Vector3(-1, 0.2, 0)
+
+[node name="Seat12" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0, -2.3)
+exit_offset = Vector3(-1.9, 0.2, 0)
+
+[node name="Seat13" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9, 0, -0.7)
+exit_offset = Vector3(1.9, 0.2, 0)
+
+[node name="Seat14" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, -0.7)
+exit_offset = Vector3(1, 0.2, 0)
+
+[node name="Seat15" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, -0.7)
+exit_offset = Vector3(-1, 0.2, 0)
+
+[node name="Seat16" parent="Economy" instance=ExtResource("p_seat")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.9, 0, -0.7)
+exit_offset = Vector3(-1.9, 0.2, 0)
+
+[node name="BinL1" parent="Economy" instance=ExtResource("p_bin")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.15, 0, -4.7)
+
+[node name="BinL2" parent="Economy" instance=ExtResource("p_bin")]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -2.15, 0, -1.5)
+
+[node name="BinR1" parent="Economy" instance=ExtResource("p_bin")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2.15, 0, -4.7)
+
+[node name="BinR2" parent="Economy" instance=ExtResource("p_bin")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 2.15, 0, -1.5)
+
+[node name="Bag" parent="Economy" instance=ExtResource("p_bag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.15, 1.52, -4.7)
+
+[node name="Galley" type="Node3D" parent="."]
+
+[node name="CounterLeft" type="StaticBody3D" parent="Galley"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.1, 0.5, 3.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Galley/CounterLeft"]
+shape = SubResource("Shape_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Galley/CounterLeft"]
+mesh = SubResource("Mesh_15")
+
+[node name="CounterRight" type="StaticBody3D" parent="Galley"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1, 0.5, 3.5)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Galley/CounterRight"]
+shape = SubResource("Shape_14")
+
+[node name="Mesh" type="MeshInstance3D" parent="Galley/CounterRight"]
+mesh = SubResource("Mesh_15")
+
+[node name="Cart" parent="Galley" instance=ExtResource("p_cart")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 2)
+
+[node name="Box1" parent="Galley" instance=ExtResource("p_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.4, 4)
+
+[node name="Box2" parent="Galley" instance=ExtResource("p_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.4, 4)
+
+[node name="Box3" parent="Galley" instance=ExtResource("p_box")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 3.4)
+
+[node name="Bathroom" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0, 8.5)
+
+[node name="WallBack" type="StaticBody3D" parent="Bathroom"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, -1.1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bathroom/WallBack"]
+shape = SubResource("Shape_16")
+
+[node name="Mesh" type="MeshInstance3D" parent="Bathroom/WallBack"]
+mesh = SubResource("Mesh_17")
+
+[node name="WallWest" type="StaticBody3D" parent="Bathroom"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1, 1.3, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bathroom/WallWest"]
+shape = SubResource("Shape_18")
+
+[node name="Mesh" type="MeshInstance3D" parent="Bathroom/WallWest"]
+mesh = SubResource("Mesh_19")
+
+[node name="WallEast" type="StaticBody3D" parent="Bathroom"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1, 1.3, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bathroom/WallEast"]
+shape = SubResource("Shape_18")
+
+[node name="Mesh" type="MeshInstance3D" parent="Bathroom/WallEast"]
+mesh = SubResource("Mesh_19")
+
+[node name="WallFrontLeft" type="StaticBody3D" parent="Bathroom"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.85, 1.3, 1.1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bathroom/WallFrontLeft"]
+shape = SubResource("Shape_20")
+
+[node name="Mesh" type="MeshInstance3D" parent="Bathroom/WallFrontLeft"]
+mesh = SubResource("Mesh_21")
+
+[node name="WallFrontRight" type="StaticBody3D" parent="Bathroom"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.85, 1.3, 1.1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Bathroom/WallFrontRight"]
+shape = SubResource("Shape_20")
+
+[node name="Mesh" type="MeshInstance3D" parent="Bathroom/WallFrontRight"]
+mesh = SubResource("Mesh_21")
+
+[node name="BathroomDoor" parent="Bathroom" instance=ExtResource("p_door")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 1.1)
+has_lock = true
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="Light1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, -12.5)
+light_energy = 0.8
+omni_range = 9.0
+
+[node name="Light2" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, -6)
+light_energy = 0.8
+omni_range = 9.0
+
+[node name="Light3" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, -1)
+light_energy = 0.8
+omni_range = 9.0
+
+[node name="Light4" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 4)
+light_energy = 0.8
+omni_range = 9.0
+
+[node name="Light5" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 8)
+light_energy = 0.8
+omni_range = 9.0

@@ -24,6 +24,7 @@ var locked_by: int = 0:
 
 
 func _ready() -> void:
+	add_to_group("match_resettable")
 	_door_interactable.interacted.connect(_on_door_interacted)
 	if has_lock:
 		_lock_interactable.interacted.connect(_on_lock_interacted)
@@ -34,6 +35,12 @@ func _ready() -> void:
 		Network.player_left.connect(_on_player_left)
 	_hinge.set_open(is_open, false)
 	_refresh()
+
+
+## Solo host (lo llama Match): cerrada y sin seguro.
+func reset() -> void:
+	locked_by = 0
+	is_open = false
 
 
 func _set_is_open(value: bool) -> void:

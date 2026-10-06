@@ -2,244 +2,72 @@
 
 [ext_resource type="Script" path="res://scripts/match/match.gd" id="1_match"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="2_pause"]
-[ext_resource type="Material" path="res://resources/materials/mat_floor_gray.tres" id="3_floor"]
-[ext_resource type="Material" path="res://resources/materials/mat_wall_light.tres" id="4_wall"]
-[ext_resource type="PackedScene" path="res://scenes/props/grabbable_box.tscn" id="5_box"]
-[ext_resource type="PackedScene" path="res://scenes/props/cart.tscn" id="6_cart"]
-[ext_resource type="PackedScene" path="res://scenes/props/bag.tscn" id="7_bag"]
-[ext_resource type="PackedScene" path="res://scenes/plane/seat.tscn" id="8_seat"]
-[ext_resource type="PackedScene" path="res://scenes/plane/door.tscn" id="9_door"]
-[ext_resource type="PackedScene" path="res://scenes/plane/overhead_bin.tscn" id="10_bin"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/results.tscn" id="4_results"]
+[ext_resource type="PackedScene" path="res://scenes/plane/plane.tscn" id="5_plane"]
+[ext_resource type="Resource" path="res://resources/game_balance.tres" id="6_balance"]
 
 [sub_resource type="Environment" id="Environment_match"]
 background_mode = 1
 background_color = Color(0.55, 0.7, 0.9, 1)
 ambient_light_source = 2
 ambient_light_color = Color(1, 1, 1, 1)
-ambient_light_energy = 0.5
+ambient_light_energy = 0.6
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(30, 1, 30)
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_state"]
+properties/0/path = NodePath(".:state")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:roles")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:result_text")
+properties/2/spawn = true
+properties/2/replication_mode = 2
 
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-material = ExtResource("3_floor")
-size = Vector3(30, 1, 30)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
-size = Vector3(30, 3, 0.5)
-
-[sub_resource type="BoxMesh" id="BoxMesh_wall"]
-material = ExtResource("4_wall")
-size = Vector3(30, 3, 0.5)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ramp"]
-size = Vector3(4, 0.3, 6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ramp"]
-material = ExtResource("4_wall")
-size = Vector3(4, 0.3, 6)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_step"]
-size = Vector3(4, 0.4, 4)
-
-[sub_resource type="BoxMesh" id="BoxMesh_step"]
-material = ExtResource("4_wall")
-size = Vector3(4, 0.4, 4)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_bath_back"]
-size = Vector3(2.4, 2.6, 0.2)
-
-[sub_resource type="BoxMesh" id="BoxMesh_bath_back"]
-material = ExtResource("4_wall")
-size = Vector3(2.4, 2.6, 0.2)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_bath_side"]
-size = Vector3(0.2, 2.6, 2.4)
-
-[sub_resource type="BoxMesh" id="BoxMesh_bath_side"]
-material = ExtResource("4_wall")
-size = Vector3(0.2, 2.6, 2.4)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_bath_front"]
-size = Vector3(0.7, 2.6, 0.2)
-
-[sub_resource type="BoxMesh" id="BoxMesh_bath_front"]
-material = ExtResource("4_wall")
-size = Vector3(0.7, 2.6, 0.2)
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_timer"]
+properties/0/path = NodePath(".:time_left")
+properties/0/spawn = true
+properties/0/replication_mode = 1
 
 [node name="Match" type="Node3D"]
 script = ExtResource("1_match")
+balance = ExtResource("6_balance")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_match")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.6428, 0.766, 0, -0.766, 0.6428, 0, 6, 0)
-shadow_enabled = true
+[node name="Plane" parent="." instance=ExtResource("5_plane")]
 
-[node name="Level" type="Node3D" parent="."]
-
-[node name="Floor" type="StaticBody3D" parent="Level"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Floor"]
-shape = SubResource("BoxShape3D_floor")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Floor"]
-mesh = SubResource("BoxMesh_floor")
-
-[node name="WallNorth" type="StaticBody3D" parent="Level"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -15)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/WallNorth"]
-shape = SubResource("BoxShape3D_wall")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/WallNorth"]
-mesh = SubResource("BoxMesh_wall")
-
-[node name="WallSouth" type="StaticBody3D" parent="Level"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/WallSouth"]
-shape = SubResource("BoxShape3D_wall")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/WallSouth"]
-mesh = SubResource("BoxMesh_wall")
-
-[node name="WallEast" type="StaticBody3D" parent="Level"]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 15, 1.5, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/WallEast"]
-shape = SubResource("BoxShape3D_wall")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/WallEast"]
-mesh = SubResource("BoxMesh_wall")
-
-[node name="WallWest" type="StaticBody3D" parent="Level"]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -15, 1.5, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/WallWest"]
-shape = SubResource("BoxShape3D_wall")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/WallWest"]
-mesh = SubResource("BoxMesh_wall")
-
-[node name="Ramp" type="StaticBody3D" parent="Level"]
-transform = Transform3D(1, 0, 0, 0, 0.9659, -0.2588, 0, 0.2588, 0.9659, -6, 0.4, -6)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Ramp"]
-shape = SubResource("BoxShape3D_ramp")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Ramp"]
-mesh = SubResource("BoxMesh_ramp")
-
-[node name="Step" type="StaticBody3D" parent="Level"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.2, -8)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Step"]
-shape = SubResource("BoxShape3D_step")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Step"]
-mesh = SubResource("BoxMesh_step")
-
-[node name="Box1" parent="Level" instance=ExtResource("5_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.4, -4)
-
-[node name="Box2" parent="Level" instance=ExtResource("5_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.4, -4)
-
-[node name="Box3" parent="Level" instance=ExtResource("5_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.4, -4)
-
-[node name="Box4" parent="Level" instance=ExtResource("5_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.4, -4)
-
-[node name="Box5" parent="Level" instance=ExtResource("5_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0.4, -6)
-
-[node name="Box6" parent="Level" instance=ExtResource("5_box")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.4, -6)
-
-[node name="Cart" parent="Level" instance=ExtResource("6_cart")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
-
-[node name="Seat1" parent="Level" instance=ExtResource("8_seat")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 8)
-
-[node name="Seat2" parent="Level" instance=ExtResource("8_seat")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 0, 8)
-
-[node name="OverheadBin" parent="Level" instance=ExtResource("10_bin")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -14.4)
-
-[node name="Bag" parent="Level" instance=ExtResource("7_bag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52, -14.4)
-
-[node name="Bathroom" type="Node3D" parent="Level"]
-
-[node name="WallBack" type="StaticBody3D" parent="Level/Bathroom"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.3, -12.1)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Bathroom/WallBack"]
-shape = SubResource("BoxShape3D_bath_back")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Bathroom/WallBack"]
-mesh = SubResource("BoxMesh_bath_back")
-
-[node name="WallWest" type="StaticBody3D" parent="Level/Bathroom"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.9, 1.3, -11)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Bathroom/WallWest"]
-shape = SubResource("BoxShape3D_bath_side")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Bathroom/WallWest"]
-mesh = SubResource("BoxMesh_bath_side")
-
-[node name="WallEast" type="StaticBody3D" parent="Level/Bathroom"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.1, 1.3, -11)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Bathroom/WallEast"]
-shape = SubResource("BoxShape3D_bath_side")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Bathroom/WallEast"]
-mesh = SubResource("BoxMesh_bath_side")
-
-[node name="WallFrontLeft" type="StaticBody3D" parent="Level/Bathroom"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.15, 1.3, -9.9)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Bathroom/WallFrontLeft"]
-shape = SubResource("BoxShape3D_bath_front")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Bathroom/WallFrontLeft"]
-mesh = SubResource("BoxMesh_bath_front")
-
-[node name="WallFrontRight" type="StaticBody3D" parent="Level/Bathroom"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.85, 1.3, -9.9)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Level/Bathroom/WallFrontRight"]
-shape = SubResource("BoxShape3D_bath_front")
-
-[node name="Mesh" type="MeshInstance3D" parent="Level/Bathroom/WallFrontRight"]
-mesh = SubResource("BoxMesh_bath_front")
-
-[node name="BathroomDoor" parent="Level" instance=ExtResource("9_door")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.5, 0, -9.9)
-has_lock = true
-
-[node name="SpawnPoints" type="Node3D" parent="."]
+[node name="LobbySpawns" type="Node3D" parent="."]
 unique_name_in_owner = true
 
-[node name="Spawn1" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1, 3)
+[node name="Lobby1" type="Marker3D" parent="LobbySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 1, 5.5)
 
-[node name="Spawn2" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 3)
+[node name="Lobby2" type="Marker3D" parent="LobbySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1, 5.5)
 
-[node name="Spawn3" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 3)
+[node name="Lobby3" type="Marker3D" parent="LobbySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1, 5.5)
 
-[node name="Spawn4" type="Marker3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1, 3)
+[node name="Lobby4" type="Marker3D" parent="LobbySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1, 5.5)
+
+[node name="RoleSpawns" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="Steward" type="Marker3D" parent="RoleSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 1, 2.2)
+
+[node name="Passenger1" type="Marker3D" parent="RoleSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -4.7)
+
+[node name="Pilot" type="Marker3D" parent="RoleSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.2, 1, -12.8)
+
+[node name="Passenger2" type="Marker3D" parent="RoleSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -2.3)
 
 [node name="Players" type="Node3D" parent="."]
 unique_name_in_owner = true
@@ -248,4 +76,18 @@ unique_name_in_owner = true
 unique_name_in_owner = true
 spawn_path = NodePath("../Players")
 
+[node name="StateSync" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_state")
+
+[node name="TimerSync" type="MultiplayerSynchronizer" parent="."]
+replication_interval = 0.25
+replication_config = SubResource("SceneReplicationConfig_timer")
+
+[node name="Hud" parent="." instance=ExtResource("3_hud")]
+unique_name_in_owner = true
+
+[node name="Results" parent="." instance=ExtResource("4_results")]
+unique_name_in_owner = true
+
 [node name="PauseMenu" parent="." instance=ExtResource("2_pause")]
+unique_name_in_owner = true
